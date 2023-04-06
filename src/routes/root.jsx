@@ -1,31 +1,37 @@
-import { Form, NavLink, Outlet, useLoaderData, useNavigation } from "react-router-dom";
-import { createContact, getContacts } from "../contacts";
+import { useEffect, useState } from "react";
+import { Form, NavLink, Outlet, useLoaderData, useNavigation, useSubmit } from "react-router-dom";
 
-export async function loader() {
-    const contacts = await getContacts();
-    return { contacts }
-}
-
-export async function action() {
-    const contact = await createContact();
-    return { contact }
-}
 
 export default function Root() {
-    const { contacts } = useLoaderData();
+    const { contacts, q } = useLoaderData();
     const navigation = useNavigation();
+    let dataFilter = [];
+    const [filter, setFilter] = useState(q ? q : '');
+    if (contacts.length)
+        contacts.forEach(contact => {
+            if (contact.first || contact.last)
+                if (contact.first.toLowerCase().includes(filter.toLowerCase()) || contact.last.toLowerCase().includes(filter.toLowerCase()))
+                    dataFilter.push(
+                        <Contact contact={contact} />
+                    )
+        });
+    useEffect(() => {
+        document.getElementById('q').value = q;
+    })
     return (
-        <>
+        <div id='root'>
             <div id="sidebar">
                 <h1>React Router Contacts</h1>
                 <div>
-                    <form id="search-form" role="search">
+                    <Form id="search-form" role="search">
                         <input
                             id="q"
                             aria-label="Search contacts"
                             placeholder="Search"
                             type="search"
                             name="q"
+                            value={filter}
+                            onChange={e => setFilter(e.target.value)}
                         />
                         <div
                             id="search-spinner"
@@ -36,7 +42,7 @@ export default function Root() {
                             className="sr-only"
                             aria-live="polite"
                         ></div>
-                    </form>
+                    </Form>
                     <Form method="post">
                         <button type="submit">New</button>
                     </Form>
@@ -44,23 +50,7 @@ export default function Root() {
                 <nav>
                     {contacts.length ? (
                         <ul>
-                            {contacts.map((contact) => (
-                                <li key={contact.id}>
-                                    <NavLink to={`contacts/${contact.id}`}
-                                        className={({ isActive, isPending }) =>
-                                            isActive ? 'active' :
-                                                isPending ? 'pending' : ''}>
-                                        {contact.first || contact.last ? (
-                                            <>
-                                                {contact.first} {contact.last}
-                                            </>
-                                        ) : (
-                                            <i>No Name</i>
-                                        )}{" "}
-                                        {contact.favorite && <span>★</span>}
-                                    </NavLink>
-                                </li>
-                            ))}
+                            {filter ? dataFilter : <ContactList contacts={contacts} />}
                         </ul>
                     ) : (
                         <p>
@@ -85,6 +75,33 @@ export default function Root() {
                 className={navigation.state === 'loading' ? 'loading' : ''} >
                 <Outlet />
             </div>
-        </>
+        </div>
     );
+}
+
+function Contact({ contact }) {
+    return (
+        <li key={contact.id}>
+            <NavLink to={`contacts/${contact.id}`}
+                className={({ isActive, isPending }) =>
+                    isActive ? 'active' :
+                        isPending ? 'pending' : ''}>
+                {contact.first || contact.last ? (
+                    <>
+                        {contact.first} {contact.last}
+                    </>
+                ) : (
+                    <i>No Name</i>
+                )}{" "}
+                {contact.favorite && <span>★</span>}
+            </NavLink>
+        </li>
+    )
+}
+
+function ContactList({ contacts }) {
+    return (
+        contacts.map(contact =>
+            <Contact contact={contact} />)
+    )
 }
