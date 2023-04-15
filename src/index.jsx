@@ -30,6 +30,12 @@ const router = createBrowserRouter([
         path: "/contacts/:contactId",
         element: <Contact />,
         loader: idDependedLoader,
+        action: async ({params, request})=>{
+          let favorite = (await request.formData()).get('favorite') === 'true';
+          return updateContact(params.contactId, {
+            favorite: favorite
+          })
+        }
       },
       {
         path: "/contacts/:contactId/edit",

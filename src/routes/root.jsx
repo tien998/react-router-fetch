@@ -80,19 +80,20 @@ export default function Root() {
 }
 
 function Contact({ contact }) {
+    
     return (
         <li key={contact.id}>
             <NavLink to={`contacts/${contact.id}`}
                 className={({ isActive, isPending }) =>
-                    isActive ? 'active' :
-                        isPending ? 'pending' : ''}>
+                isActive ? 'active' :
+                isPending ? 'pending' : ''}>
                 {contact.first || contact.last ? (
                     <>
                         {contact.first} {contact.last}
                     </>
                 ) : (
                     <i>No Name</i>
-                )}{" "}
+                    )}{" "}
                 {contact.favorite && <span>★</span>}
             </NavLink>
         </li>
