@@ -55,15 +55,15 @@ export default function Contact() {
           <Form
             method="post"
             action="destroy"
-            // onSubmit={(event) => {
-            //   if (
-            //     !confirm(
-            //       "Please confirm you want to delete this record."
-            //     )
-            //   ) {
-            //     event.preventDefault();
-            //   }
-            // }}
+          // onSubmit={(event) => {
+          //   if (
+          //     !confirm(
+          //       "Please confirm you want to delete this record."
+          //     )
+          //   ) {
+          //     event.preventDefault();
+          //   }
+          // }}
           >
             <button type="submit">Delete</button>
           </Form>
@@ -74,14 +74,23 @@ export default function Contact() {
 }
 
 function Favorite({ contact }) {
-  // yes, this is a `let` for later
+
+  // Lấy giá trị favorite từ { contact }
+  //  rồi tạo cho button giá trị ngược lại
   let favorite = contact.favorite;
+  
+  // Dựa vào giá trị favorite gửi vào request qua đối tượng 'formData'
+  //  trả về giao diện UI kết quả như thể request đã hoàn thành
+  //  => Khiến người dùng cảm thấy web hoạt động nhanh ngay lập tức
+
+  // fetcher.formData.get('favorite') === 'true' sẽ trả về boolen 'true' hoặc 'false'
   const fetcher = useFetcher();
-  if(fetcher.formData) {
+  if (fetcher.formData) {
     favorite = fetcher.formData.get('favorite') === 'true'
   }
+  
   return (
-    <fetcher.Form method="post">
+    <fetcher.Form method="PUT">
       <button
         name="favorite"
         value={favorite ? "false" : "true"}
@@ -91,6 +100,7 @@ function Favorite({ contact }) {
             : "Add to favorites"
         }
       >
+        {/* Hiển thị UI favorite 'có' hoặc 'ko' */}
         {favorite ? "★" : "☆"}
       </button>
     </fetcher.Form>
