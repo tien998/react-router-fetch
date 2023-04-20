@@ -79,12 +79,13 @@ function Favorite({ contact }) {
   //  rồi tạo cho button giá trị ngược lại
   let favorite = contact.favorite;
   
+  // fetcher.formData.get('favorite') === 'true' sẽ trả về boolen 'true' hoặc 'false'
+  const fetcher = useFetcher();
+
+  // Nếu fetcher.formData != '' chứng tỏ có giá trị đang đc submit
   // Dựa vào giá trị favorite gửi vào request qua đối tượng 'formData'
   //  trả về giao diện UI kết quả như thể request đã hoàn thành
   //  => Khiến người dùng cảm thấy web hoạt động nhanh ngay lập tức
-
-  // fetcher.formData.get('favorite') === 'true' sẽ trả về boolen 'true' hoặc 'false'
-  const fetcher = useFetcher();
   if (fetcher.formData) {
     favorite = fetcher.formData.get('favorite') === 'true'
   }

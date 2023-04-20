@@ -18,7 +18,46 @@ import Index from './routes/Index';
 const url = 'https://643916421b9a7dd5c95e9fed.mockapi.io/contacts';
 // const url ='https://localhost:7161/pizza';
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    errorElement: <ErrorPage />,
+    loader: loadContacts,
+    action: createAction,
+    children: [
+      {
+        index: true,
+        element: <Index />
+      },
+      {
+        path: "/contacts/:contactId",
+        element: <Contact />,
+        loader: loadContact,
+        action: favoriteEdit
+      },
+      {
+        path: "/contacts/:contactId/edit",
+        element: <EditContact />,
+        loader: loadContact,
+        action: editAction
+      },
+      {
+        path: `/contacts/:contactId/destroy`,
+        action: destroyAction,
+        errorElement: <ErrorPage />
+      }
+    ],
+  },
+]);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode >
+);
 
+// Các 'loader' và 'action' được khai báo dưới đây
 async function GetContacts() {
   return (await (await fetch(url)).json())
 }
@@ -83,9 +122,9 @@ async function favoriteEdit({ params, request }) {
   const id = params.contactId;
   // Truy vấn 1 mảng các contacts rồi tìm phần tử  bằng id
   const contacts = await GetContacts();
-  let contact = contacts.find(id => id == id);
+  let contact = contacts.find(id => id === id);
   // Lấy giá  trị của favorite đc truyền vào request rồi gán vào contact vừa tìm
-  const favorite = (await request.formData()).get('favorite') == 'true';
+  const favorite = (await request.formData()).get('favorite') === 'true';
   contact.favorite = favorite;
   // Update data
   await fetch(`${url}/${id}`, {
@@ -95,42 +134,3 @@ async function favoriteEdit({ params, request }) {
   });
   return redirect(`/contacts/${id}`)
 }
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-    errorElement: <ErrorPage />,
-    loader: loadContacts,
-    action: createAction,
-    children: [
-      {
-        index: true,
-        element: <Index />
-      },
-      {
-        path: "/contacts/:contactId",
-        element: <Contact />,
-        loader: loadContact,
-        action: favoriteEdit
-      },
-      {
-        path: "/contacts/:contactId/edit",
-        element: <EditContact />,
-        loader: loadContact,
-        action: editAction
-      },
-      {
-        path: `/contacts/:contactId/destroy`,
-        action: destroyAction,
-        errorElement: <ErrorPage />
-      }
-    ],
-  },
-]);
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode >
-);

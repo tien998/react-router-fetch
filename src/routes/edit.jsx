@@ -2,6 +2,7 @@ import { Form, useLoaderData, useNavigate } from "react-router-dom";
 
 export default function EditContact() {
   const contact = useLoaderData();
+  // 'useNavigate' dùng để điều hướng trang. Ở đây nó đc đặt vào onclick của button Cancel nhằm lùi về trang trc đó 
   const navigate = useNavigate();
 
   return (

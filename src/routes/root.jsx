@@ -4,9 +4,15 @@ import { Form, NavLink, Outlet, useLoaderData, useNavigation, useSubmit } from "
 
 export default function Root() {
     const { contacts, q } = useLoaderData();
+    // useNavigation có thuộc tính state biểu thị các trạng thái điều hướng: Idle, loading, submiting
+    //      dùng làm điều kiện hiển thỉ, giúp người dùng cảm giác web có phản hồi hơn - Cải thiện UX
     const navigation = useNavigation();
+
+    // Mảng chứa các Component Contact đang được tìm kiếm trên thanh Search Bar
     let dataFilter = [];
     const [filter, setFilter] = useState(q ? q : '');
+
+    // Lọc từng thành phần mảng contacts. Phần tử contact nào thỏa điều kiện sẽ đc thêm vào mảng 'dataFilter' dưới dạng Component và hiển thị
     if (contacts.length)
         contacts.forEach(contact => {
             if (contact.first || contact.last)
@@ -15,14 +21,18 @@ export default function Root() {
                         <Contact contact={contact} />
                     )
         });
+    // Sau khi React render, giá trị trên thanh Search Bar sẽ đc giữ lại để đồng bộ vs kết quả tìm kiếm
     useEffect(() => {
         document.getElementById('q').value = q;
-    })
+    });
     return (
         <div id='root'>
             <div id="sidebar">
                 <h1>React Router Contacts</h1>
                 <div>
+                    {/* Sử dụng <Form> của 'react-router-dom' sẽ chặn việc gửi httpRequest khi submit dữ liệu, 
+                            trang sẽ ko bị load lại, httpRequest sau đó sẽ đc gửi đi qua action, 
+                            dữ liệu trả về  sẽ đc render lại */}
                     <Form id="search-form" role="search">
                         <input
                             id="q"
@@ -33,15 +43,7 @@ export default function Root() {
                             value={filter}
                             onChange={e => setFilter(e.target.value)}
                         />
-                        <div
-                            id="search-spinner"
-                            aria-hidden
-                            hidden={true}
-                        />
-                        <div
-                            className="sr-only"
-                            aria-live="polite"
-                        ></div>
+                        
                     </Form>
                     <Form method="post">
                         <button type="submit">New</button>
@@ -50,6 +52,7 @@ export default function Root() {
                 <nav>
                     {contacts.length ? (
                         <ul>
+                            {/* Nếu giá trị trong Search Bar != '' thì hiển thị giá trị đc tìm kiếm, cò ko thì hiển thị toàn bộ các contact */}
                             {filter ? dataFilter : <ContactList contacts={contacts} />}
                         </ul>
                     ) : (
@@ -57,20 +60,9 @@ export default function Root() {
                             <i>No contacts</i>
                         </p>
                     )}
-                    {/* <ul>
-                        {contacts.length ? 
-                            contacts.map(contact => {
-                                <li key={contact.id}>
-                                    <Link to={`contacts/${contact.id}`}>
-                                        {contact.first || contact.last ? <i>{contact.first} {contact.last}</i> : <i>No name</i>}
-                                    </Link>
-                                </li>
-                            }) : 
-                           <li> <p><i>No contacts</i></p></li>
-                        }
-                    </ul> */}
                 </nav>
             </div>
+            {/* Nếu useNavvigation().state = 'loading' thì phần hiển thị Outlet sẽ bị mờ đi */}
             <div id="detail"
                 className={navigation.state === 'loading' ? 'loading' : ''} >
                 <Outlet />
